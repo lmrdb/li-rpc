@@ -5,10 +5,18 @@
     <groupId>com.li</groupId>
     <artifactId>li-rpc</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
     <name>li-rpc</name>
     <description>li-rpc</description>
+    <modules>
+        <module>example-common</module>
+        <module>example-provider</module>
+        <module>example-consumer</module>
+        <module>li-rpc-easy</module>
+        <module>li-rpc-core</module>
+    </modules>
     <properties>
-        <java.version>1.8</java.version>
+        <java.version>11</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <spring-boot.version>2.7.6</spring-boot.version>
