@@ -10,6 +10,7 @@ import com.li.lirpc.registry.Registry;
 import com.li.lirpc.registry.RegistryFactory;
 import com.li.lirpc.server.HttpServer;
 import com.li.lirpc.server.VertxHttpServer;
+import com.li.lirpc.server.tcp.VertxTcpServer;
 
 /**
  * 简易服务提供者示例
@@ -39,7 +40,10 @@ public class EasyProviderExample {
         }
 
         // 启动 web 服务
-        HttpServer httpServer = new VertxHttpServer();
-        httpServer.doStart(8080);
+//        HttpServer httpServer = new VertxHttpServer();
+//        httpServer.doStart(8080);
+
+        VertxTcpServer vertxTcpServer = new VertxTcpServer();
+        vertxTcpServer.doStart(8080);
     }
 }

@@ -9,7 +9,7 @@ import com.li.lirpc.proxy.ServiceProxyFactory;
  * 简易服务消费者
  */
 public class EasyConsumerExample {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         RpcConfig rpc = ConfigUtils.loadConfig(RpcConfig.class, "rpc");
         System.out.println(rpc);
 
@@ -23,6 +23,19 @@ public class EasyConsumerExample {
         }else {
             System.out.println("user is null");
         }
+//        newUser=userService.getUser(user);
+//        if(newUser!=null){
+//            System.out.println(newUser.getName());
+//        }else {
+//            System.out.println("user is null");
+//        }
+//        Thread.sleep(10000);
+//        newUser=userService.getUser(user);
+//        if(newUser!=null){
+//            System.out.println(newUser.getName());
+//        }else {
+//            System.out.println("user is null");
+//        }
         long number=userService.getNumber();
         System.out.println(number);
     }

@@ -2,6 +2,7 @@ package com.li.lirpc.proxy;
 
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import com.li.lirpc.RpcApplication;
@@ -10,17 +11,22 @@ import com.li.lirpc.constant.RpcConstant;
 import com.li.lirpc.model.RpcRequest;
 import com.li.lirpc.model.RpcResponse;
 import com.li.lirpc.model.ServiceMetaInfo;
+import com.li.lirpc.protocol.*;
 import com.li.lirpc.registry.Registry;
 import com.li.lirpc.registry.RegistryFactory;
 import com.li.lirpc.serializer.JdkSerializer;
 import com.li.lirpc.serializer.Serializer;
-import com.li.lirpc.serializer.SerializerFactory;
+import com.li.lirpc.server.tcp.VertxTcpClient;
+import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.net.NetClient;
+import io.vertx.core.net.NetSocket;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.ServiceLoader;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * 服务代理（JDK动态代理）
@@ -78,13 +84,10 @@ public class ServiceProxy implements InvocationHandler {
             System.out.println(selectedServiceMetaInfo);
 
 
-            try (HttpResponse httpResponse = HttpRequest.post("http://localhost:8080")
-                    .body(bodyBytes)
-                    .execute()) {
-                byte[] result = httpResponse.bodyBytes();
-                RpcResponse rpcResponse = serializer.deserialize(result, RpcResponse.class);
-                return rpcResponse.getData();
-            }
+            //发送TCP请求
+            RpcResponse rpcResponse = VertxTcpClient.doRequest(rpcRequest, selectedServiceMetaInfo);
+            return rpcResponse.getData();
+
         }catch (IOException e){
             e.printStackTrace();
         }
