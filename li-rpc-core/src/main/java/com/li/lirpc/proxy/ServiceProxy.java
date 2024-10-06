@@ -8,6 +8,8 @@ import cn.hutool.http.HttpResponse;
 import com.li.lirpc.RpcApplication;
 import com.li.lirpc.config.RpcConfig;
 import com.li.lirpc.constant.RpcConstant;
+import com.li.lirpc.loadbalancer.LoadBalancer;
+import com.li.lirpc.loadbalancer.LoadBalancerFactory;
 import com.li.lirpc.model.RpcRequest;
 import com.li.lirpc.model.RpcResponse;
 import com.li.lirpc.model.ServiceMetaInfo;
@@ -25,7 +27,9 @@ import io.vertx.core.net.NetSocket;
 import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -80,8 +84,16 @@ public class ServiceProxy implements InvocationHandler {
             if(CollUtil.isEmpty(serviceMetaInfoList)){
                 throw new RuntimeException("暂无服务地址");
             }
-            ServiceMetaInfo selectedServiceMetaInfo = serviceMetaInfoList.get(0);
-            System.out.println(selectedServiceMetaInfo);
+
+            //负载均衡
+            LoadBalancer loadBalancer = LoadBalancerFactory.getInstance(rpcConfig.getLoadBalancer());
+            //将调用方法名作为负载均衡参数
+            Map<String, Object> requestParams = new HashMap<>();
+            requestParams.put("serviceName", rpcRequest.getMethodName());
+            ServiceMetaInfo selectedServiceMetaInfo = loadBalancer.select(requestParams, serviceMetaInfoList);
+
+            //ServiceMetaInfo selectedServiceMetaInfo = serviceMetaInfoList.get(0);
+            System.out.println("负载均衡选择："+selectedServiceMetaInfo);
 
 
             //发送TCP请求

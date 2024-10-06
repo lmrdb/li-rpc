@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -32,9 +33,15 @@ public class EtcdRegistry implements Registry{
 
 
     /**
-     * 注册中心服务缓存
+     * 注册中心服务缓存(只支持单个服务缓存)
      */
+    @Deprecated
     private final RegistryServiceCache registryServiceCache=new RegistryServiceCache();
+
+    /**
+     * 注册中心服务缓存（支持多个服务）
+     */
+    private final RegistryServiceMultiCache registryServiceMultiCache=new RegistryServiceMultiCache();
 
 
     private final Set<String> watchingKeySet=new ConcurrentHashSet<>();
@@ -100,8 +107,10 @@ public class EtcdRegistry implements Registry{
     public List<ServiceMetaInfo> serviceDiscovery(String serviceKey) {
 
         //优先从缓存获取服务
-        List<ServiceMetaInfo> cacheServiceMetaInfoList = registryServiceCache.readCache();
-        if(CollUtil.isNotEmpty(cacheServiceMetaInfoList)){
+        //List<ServiceMetaInfo> cacheServiceMetaInfoList = registryServiceCache.readCache();
+
+        List<ServiceMetaInfo> cacheServiceMetaInfoList=registryServiceMultiCache.readCache(serviceKey);
+        if(cacheServiceMetaInfoList!=null){
             log.info("从缓存加载服务列表");
             return cacheServiceMetaInfoList;
         }
@@ -130,7 +139,8 @@ public class EtcdRegistry implements Registry{
                     }).collect(Collectors.toList());
 
             //写入服务缓存
-            registryServiceCache.writeCache(serviceMetaInfoList);
+            //registryServiceCache.writeCache(serviceMetaInfoList);
+            registryServiceMultiCache.writeCache(serviceKey,serviceMetaInfoList);
             log.info("从注册中心加载服务列表");
             return serviceMetaInfoList;
         } catch (Exception e) {
@@ -211,7 +221,8 @@ public class EtcdRegistry implements Registry{
                         //删除时触发
                         case DELETE:
                             //清除注册服务缓存
-                            registryServiceCache.clearCache();
+                            //registryServiceCache.clearCache();
+                            registryServiceMultiCache.clearCache(serviceNodeKey);
                             break;
                         case PUT:
                         default:

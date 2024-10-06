@@ -1,0 +1,3 @@
+roundRobin=com.li.lirpc.loadbalancer.RoundRobinLoadBalancer
+random=com.li.lirpc.loadbalancer.RandomLoadBalancer
+consistentHash=com.li.lirpc.loadbalancer.ConsistentHashLoadBalancer
