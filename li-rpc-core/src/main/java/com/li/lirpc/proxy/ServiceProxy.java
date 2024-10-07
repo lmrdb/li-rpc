@@ -8,6 +8,8 @@ import cn.hutool.http.HttpResponse;
 import com.li.lirpc.RpcApplication;
 import com.li.lirpc.config.RpcConfig;
 import com.li.lirpc.constant.RpcConstant;
+import com.li.lirpc.fault.retry.RetryStrategy;
+import com.li.lirpc.fault.retry.RetryStrategyFactory;
 import com.li.lirpc.loadbalancer.LoadBalancer;
 import com.li.lirpc.loadbalancer.LoadBalancerFactory;
 import com.li.lirpc.model.RpcRequest;
@@ -96,8 +98,13 @@ public class ServiceProxy implements InvocationHandler {
             System.out.println("负载均衡选择："+selectedServiceMetaInfo);
 
 
-            //发送TCP请求
-            RpcResponse rpcResponse = VertxTcpClient.doRequest(rpcRequest, selectedServiceMetaInfo);
+            //发送RPC请求
+            //使用重试机制
+            RetryStrategy retryStrategy = RetryStrategyFactory.getInstance(rpcConfig.getRetryStrategy());
+            RpcResponse rpcResponse = retryStrategy.doRetry(() ->
+                    VertxTcpClient.doRequest(rpcRequest, selectedServiceMetaInfo));
+
+            //RpcResponse rpcResponse = VertxTcpClient.doRequest(rpcRequest, selectedServiceMetaInfo);
             return rpcResponse.getData();
 
         }catch (IOException e){

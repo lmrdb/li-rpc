@@ -1,6 +1,7 @@
 package com.li.lirpc.config;
 
 
+import com.li.lirpc.fault.retry.RetryStrategyKeys;
 import com.li.lirpc.loadbalancer.LoadBalancerKeys;
 import com.li.lirpc.serializer.SerializerKeys;
 import lombok.Data;
@@ -53,6 +54,15 @@ public class RpcConfig {
     private RegistryConfig registryConfig=new RegistryConfig();
 
 
+    /**
+     * 负载均衡配置
+     */
     private String loadBalancer= LoadBalancerKeys.ROUND_ROBIN;
+
+
+    /**
+     * 重试策略配置
+     */
+    private String retryStrategy= RetryStrategyKeys.NO;
 
 }
