@@ -2,29 +2,23 @@ package com.li.lirpc.proxy;
 
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.IdUtil;
-import cn.hutool.http.HttpRequest;
-import cn.hutool.http.HttpResponse;
 import com.li.lirpc.RpcApplication;
 import com.li.lirpc.config.RpcConfig;
 import com.li.lirpc.constant.RpcConstant;
 import com.li.lirpc.fault.retry.RetryStrategy;
 import com.li.lirpc.fault.retry.RetryStrategyFactory;
+import com.li.lirpc.fault.tolerant.TolerantStrategy;
+import com.li.lirpc.fault.tolerant.TolerantStrategyFactory;
 import com.li.lirpc.loadbalancer.LoadBalancer;
 import com.li.lirpc.loadbalancer.LoadBalancerFactory;
 import com.li.lirpc.model.RpcRequest;
 import com.li.lirpc.model.RpcResponse;
 import com.li.lirpc.model.ServiceMetaInfo;
-import com.li.lirpc.protocol.*;
 import com.li.lirpc.registry.Registry;
 import com.li.lirpc.registry.RegistryFactory;
 import com.li.lirpc.serializer.JdkSerializer;
 import com.li.lirpc.serializer.Serializer;
 import com.li.lirpc.server.tcp.VertxTcpClient;
-import io.vertx.core.Vertx;
-import io.vertx.core.buffer.Buffer;
-import io.vertx.core.net.NetClient;
-import io.vertx.core.net.NetSocket;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
@@ -32,7 +26,6 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * 服务代理（JDK动态代理）
@@ -100,9 +93,18 @@ public class ServiceProxy implements InvocationHandler {
 
             //发送RPC请求
             //使用重试机制
-            RetryStrategy retryStrategy = RetryStrategyFactory.getInstance(rpcConfig.getRetryStrategy());
-            RpcResponse rpcResponse = retryStrategy.doRetry(() ->
-                    VertxTcpClient.doRequest(rpcRequest, selectedServiceMetaInfo));
+            RpcResponse rpcResponse;
+            try {
+                RetryStrategy retryStrategy = RetryStrategyFactory.getInstance(rpcConfig.getRetryStrategy());
+                rpcResponse = retryStrategy.doRetry(() ->
+                        VertxTcpClient.doRequest(rpcRequest, selectedServiceMetaInfo));
+            }catch (Exception e){
+
+                //容错机制
+                TolerantStrategy tolerantStrategy = TolerantStrategyFactory
+                        .getInstance(rpcConfig.getTolerantStrategy());
+                rpcResponse=tolerantStrategy.doTolerant(null,e);
+            }
 
             //RpcResponse rpcResponse = VertxTcpClient.doRequest(rpcRequest, selectedServiceMetaInfo);
             return rpcResponse.getData();

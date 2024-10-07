@@ -2,6 +2,7 @@ package com.li.lirpc.config;
 
 
 import com.li.lirpc.fault.retry.RetryStrategyKeys;
+import com.li.lirpc.fault.tolerant.TolerantStrategyKeys;
 import com.li.lirpc.loadbalancer.LoadBalancerKeys;
 import com.li.lirpc.serializer.SerializerKeys;
 import lombok.Data;
@@ -64,5 +65,10 @@ public class RpcConfig {
      * 重试策略配置
      */
     private String retryStrategy= RetryStrategyKeys.NO;
+
+    /**
+     * 容错策略配置
+     */
+    private String tolerantStrategy= TolerantStrategyKeys.FAIL_SAFE;
 
 }

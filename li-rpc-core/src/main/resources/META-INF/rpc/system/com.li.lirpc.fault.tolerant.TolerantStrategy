@@ -1,0 +1,4 @@
+failBack=com.li.lirpc.fault.tolerant.FailBackTolerantStrategy
+failFast=com.li.lirpc.fault.tolerant.FailFastTolerantStrategy
+failOver=com.li.lirpc.fault.tolerant.FailOverTolerantStrategy
+failSafe=com.li.lirpc.fault.tolerant.FailSafeTolerantStrategy

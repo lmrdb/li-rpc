@@ -2,6 +2,7 @@ package com.li.example.consumer;
 
 import com.li.example.common.model.User;
 import com.li.example.common.service.UserService;
+import com.li.lirpc.bootstrap.ConsumerBootstrap;
 import com.li.lirpc.config.RpcConfig;
 import com.li.lirpc.utils.ConfigUtils;
 import com.li.lirpc.proxy.ServiceProxyFactory;
@@ -10,8 +11,9 @@ import com.li.lirpc.proxy.ServiceProxyFactory;
  */
 public class EasyConsumerExample {
     public static void main(String[] args) throws InterruptedException {
-        RpcConfig rpc = ConfigUtils.loadConfig(RpcConfig.class, "rpc");
-        System.out.println(rpc);
+//        RpcConfig rpc = ConfigUtils.loadConfig(RpcConfig.class, "rpc");
+//        System.out.println(rpc);
+        ConsumerBootstrap.init();
 
         // 需要获取UserService的实体类对象
         UserService userService=ServiceProxyFactory.getProxy(UserService.class);
